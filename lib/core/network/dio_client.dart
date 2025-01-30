@@ -4,30 +4,50 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../constants/api_constants.dart';
 import '../cache/cache_manager.dart';
 
-@singleton
+@injectable
 class DioClient {
-  final ICacheManager _cacheManager;
-  late final Dio _dio;
+  final Dio _dio;
 
-  DioClient(this._cacheManager) {
-    _dio = Dio(
-      BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        responseType: ResponseType.json,
+  DioClient()
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl: 'https://api.example.com', // TODO: Update with your API URL
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 3),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          ),
+        ) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // TODO: Add token to headers if available
+          return handler.next(options);
+        },
+        onError: (error, handler) {
+          return handler.next(error);
+        },
       ),
-    )..interceptors.addAll([
-        PrettyDioLogger(
-          requestHeader: true,
-          requestBody: true,
-          responseHeader: true,
-        ),
-        _AuthInterceptor(_cacheManager),
-      ]);
+    );
   }
 
-  Dio get dio => _dio;
+  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) {
+    return _dio.get(path, queryParameters: queryParameters);
+  }
+
+  Future<Response> post(String path, {dynamic data}) {
+    return _dio.post(path, data: data);
+  }
+
+  Future<Response> put(String path, {dynamic data}) {
+    return _dio.put(path, data: data);
+  }
+
+  Future<Response> delete(String path) {
+    return _dio.delete(path);
+  }
 }
 
 class _AuthInterceptor extends Interceptor {

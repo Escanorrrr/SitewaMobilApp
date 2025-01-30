@@ -1,14 +1,12 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-
-import '../../../../core/error/failure.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../core/cache/cache_manager.dart';
-import '../../../../core/constants/api_constants.dart';
+import '../../../../core/storage/cache_manager.dart';
 import '../../domain/entities/login_request.dart';
-import '../../domain/entities/login_response.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../models/user_model.dart';
 
 @Injectable(as: IAuthRepository)
 class AuthRepositoryImpl implements IAuthRepository {
@@ -18,83 +16,50 @@ class AuthRepositoryImpl implements IAuthRepository {
   AuthRepositoryImpl(this._dioClient, this._cacheManager);
 
   @override
-  Future<Either<Failure, LoginResponse>> login(LoginRequest request) async {
+  Future<Either<Failure, User>> login(LoginRequest request) async {
     try {
-      final response = await _dioClient.dio.post(
-        ApiConstants.login,
-        data: request.toJson(),
+      final response = await _dioClient.post(
+        '/auth/login',
+        data: {
+          'email': request.email,
+          'password': request.password,
+        },
       );
 
-      final loginResponse = LoginResponse.fromJson(response.data);
+      if (response.statusCode == 200) {
+        final userModel = UserModel.fromJson(response.data);
+        await _cacheManager.write('token', userModel.token);
+        await _cacheManager.write('user', userModel);
+        return Right(userModel.toEntity());
+      }
 
-      // Token'ları cache'e kaydet
-      await _cacheManager.write(ApiConstants.tokenKey, loginResponse.token);
-      await _cacheManager.write(ApiConstants.refreshTokenKey, loginResponse.refreshToken);
-      await _cacheManager.write(ApiConstants.siteCodeKey, request.siteCode);
-
-      return Right(loginResponse);
-    } on DioException catch (e) {
-      return Left(ServerFailure(
-        message: e.response?.data['message'] ?? ApiConstants.serverError,
-        code: e.response?.statusCode.toString(),
-      ));
+      return const Left(ServerFailure('Giriş başarısız'));
     } catch (e) {
-      return Left(ServerFailure(
-        message: ApiConstants.unknownError,
-      ));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      await _cacheManager.clearAll();
+      await _cacheManager.delete('token');
+      await _cacheManager.delete('user');
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure(
-        message: ApiConstants.unknownError,
-      ));
+      return Left(CacheFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, String>> refreshToken(String refreshToken) async {
+  Future<Either<Failure, User>> getCurrentUser() async {
     try {
-      final response = await _dioClient.dio.post(
-        ApiConstants.refreshToken,
-        data: {'refreshToken': refreshToken},
-      );
-
-      final newToken = response.data['token'] as String;
-      await _cacheManager.write(ApiConstants.tokenKey, newToken);
-
-      return Right(newToken);
-    } on DioException catch (e) {
-      return Left(ServerFailure(
-        message: e.response?.data['message'] ?? ApiConstants.serverError,
-        code: e.response?.statusCode.toString(),
-      ));
+      final userModel = await _cacheManager.read<UserModel>('user');
+      if (userModel != null) {
+        return Right(userModel.toEntity());
+      }
+      return const Left(CacheFailure('Kullanıcı bulunamadı'));
     } catch (e) {
-      return Left(ServerFailure(
-        message: ApiConstants.unknownError,
-      ));
-    }
-  }
-
-  @override
-  Future<Either<Failure, LoginResponse>> getCurrentUser() async {
-    try {
-      final response = await _dioClient.dio.get(ApiConstants.userProfile);
-      return Right(LoginResponse.fromJson(response.data));
-    } on DioException catch (e) {
-      return Left(ServerFailure(
-        message: e.response?.data['message'] ?? ApiConstants.serverError,
-        code: e.response?.statusCode.toString(),
-      ));
-    } catch (e) {
-      return Left(ServerFailure(
-        message: ApiConstants.unknownError,
-      ));
+      return Left(CacheFailure(e.toString()));
     }
   }
 } 
