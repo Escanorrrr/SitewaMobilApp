@@ -9,7 +9,7 @@ abstract class ICacheManager {
   Future<void> clearAll();
 }
 
-@Injectable(as: ICacheManager)
+@Singleton(as: ICacheManager)
 class CacheManager implements ICacheManager {
   final SharedPreferences _prefs;
 

@@ -11,12 +11,11 @@ final getIt = GetIt.instance;
 
 @InjectableInit()
 Future<void> configureDependencies() async {
-  final prefs = await SharedPreferences.getInstance();
-  getIt.registerSingleton<SharedPreferences>(prefs);
-  getIt.registerSingleton<ICacheManager>(CacheManager(prefs));
-  getIt.registerSingleton<DioClient>(DioClient());
-  getIt.registerSingleton<IAuthRepository>(AuthRepositoryImpl(getIt(), getIt()));
+  await getIt.init();
 }
 
 @module
-abstract class RegisterModule {} 
+abstract class RegisterModule {
+  @preResolve
+  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
+} 

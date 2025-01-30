@@ -53,6 +53,9 @@ dependencies:
   url_launcher: ^6.2.2
   package_info_plus: ^5.0.1
 
+  # New dependency
+  go_router: ^13.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

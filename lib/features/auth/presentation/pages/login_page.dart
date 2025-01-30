@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/error/error_handler.dart';
 import '../providers/auth_notifier.dart';
 import '../../domain/entities/login_request.dart';
 
@@ -35,6 +36,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authNotifierProvider, (previous, next) {
+      next.maybeWhen(
+        error: (message) {
+          ErrorHandler.showErrorSnackBar(context, message);
+        },
+        orElse: () {},
+      );
+    });
+
     final authState = ref.watch(authNotifierProvider);
     
     return Scaffold(
@@ -102,10 +112,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     loading: () => const Center(
                       child: CircularProgressIndicator(),
                     ),
-                    error: (message) => Text(
-                      message,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
+                    error: (message) => Column(
+                      children: [
+                        Text(
+                          message,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text(
+                            'Tekrar Dene',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
                     ),
                     orElse: () => ElevatedButton(
                       onPressed: _handleLogin,

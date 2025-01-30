@@ -8,7 +8,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 
-@Injectable(as: IAuthRepository)
+@Singleton(as: IAuthRepository)
 class AuthRepositoryImpl implements IAuthRepository {
   final DioClient _dioClient;
   final ICacheManager _cacheManager;

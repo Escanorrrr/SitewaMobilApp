@@ -1,8 +1,8 @@
 class ApiConstants {
-  static const String baseUrl = 'https://api.sitewa.com/v1'; // TODO: API URL'i güncellenecek
+  static const String baseUrl = 'https://api.example.com';
   static const String login = '/auth/login';
   static const String refreshToken = '/auth/refresh-token';
-  static const String userProfile = '/user/profile';
+  static const String userProfile = '/auth/profile';
   
   // Cache Keys
   static const String tokenKey = 'token';
@@ -12,11 +12,11 @@ class ApiConstants {
   // Headers
   static const String authorizationHeader = 'Authorization';
   static const String bearerPrefix = 'Bearer ';
-  static const String siteCodeHeader = 'X-Site-Code';
+  static const String siteCodeHeader = 'Site-Code';
   
   // Error Messages
-  static const String connectionError = 'Bağlantı hatası';
-  static const String unauthorizedError = 'Oturum süresi doldu';
   static const String serverError = 'Sunucu hatası';
   static const String unknownError = 'Bilinmeyen bir hata oluştu';
+  static const String networkError = 'İnternet bağlantısı hatası';
+  static const String timeoutError = 'İstek zaman aşımına uğradı';
 } 
