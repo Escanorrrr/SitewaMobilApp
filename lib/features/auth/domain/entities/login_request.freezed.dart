@@ -20,8 +20,8 @@ LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LoginRequest {
-  String get code => throw _privateConstructorUsedError;
-  String get email => throw _privateConstructorUsedError;
+  String get siteCode => throw _privateConstructorUsedError;
+  String get username => throw _privateConstructorUsedError;
   String get password => throw _privateConstructorUsedError;
 
   /// Serializes this LoginRequest to a JSON map.
@@ -40,7 +40,7 @@ abstract class $LoginRequestCopyWith<$Res> {
           LoginRequest value, $Res Function(LoginRequest) then) =
       _$LoginRequestCopyWithImpl<$Res, LoginRequest>;
   @useResult
-  $Res call({String code, String email, String password});
+  $Res call({String siteCode, String username, String password});
 }
 
 /// @nodoc
@@ -58,18 +58,18 @@ class _$LoginRequestCopyWithImpl<$Res, $Val extends LoginRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? code = null,
-    Object? email = null,
+    Object? siteCode = null,
+    Object? username = null,
     Object? password = null,
   }) {
     return _then(_value.copyWith(
-      code: null == code
-          ? _value.code
-          : code // ignore: cast_nullable_to_non_nullable
+      siteCode: null == siteCode
+          ? _value.siteCode
+          : siteCode // ignore: cast_nullable_to_non_nullable
               as String,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
               as String,
       password: null == password
           ? _value.password
@@ -87,7 +87,7 @@ abstract class _$$LoginRequestImplCopyWith<$Res>
       __$$LoginRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String code, String email, String password});
+  $Res call({String siteCode, String username, String password});
 }
 
 /// @nodoc
@@ -103,18 +103,18 @@ class __$$LoginRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? code = null,
-    Object? email = null,
+    Object? siteCode = null,
+    Object? username = null,
     Object? password = null,
   }) {
     return _then(_$LoginRequestImpl(
-      code: null == code
-          ? _value.code
-          : code // ignore: cast_nullable_to_non_nullable
+      siteCode: null == siteCode
+          ? _value.siteCode
+          : siteCode // ignore: cast_nullable_to_non_nullable
               as String,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
               as String,
       password: null == password
           ? _value.password
@@ -128,21 +128,21 @@ class __$$LoginRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$LoginRequestImpl implements _LoginRequest {
   const _$LoginRequestImpl(
-      {required this.code, required this.email, required this.password});
+      {required this.siteCode, required this.username, required this.password});
 
   factory _$LoginRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginRequestImplFromJson(json);
 
   @override
-  final String code;
+  final String siteCode;
   @override
-  final String email;
+  final String username;
   @override
   final String password;
 
   @override
   String toString() {
-    return 'LoginRequest(code: $code, email: $email, password: $password)';
+    return 'LoginRequest(siteCode: $siteCode, username: $username, password: $password)';
   }
 
   @override
@@ -150,15 +150,17 @@ class _$LoginRequestImpl implements _LoginRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$LoginRequestImpl &&
-            (identical(other.code, code) || other.code == code) &&
-            (identical(other.email, email) || other.email == email) &&
+            (identical(other.siteCode, siteCode) ||
+                other.siteCode == siteCode) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
             (identical(other.password, password) ||
                 other.password == password));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, code, email, password);
+  int get hashCode => Object.hash(runtimeType, siteCode, username, password);
 
   /// Create a copy of LoginRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -178,17 +180,17 @@ class _$LoginRequestImpl implements _LoginRequest {
 
 abstract class _LoginRequest implements LoginRequest {
   const factory _LoginRequest(
-      {required final String code,
-      required final String email,
+      {required final String siteCode,
+      required final String username,
       required final String password}) = _$LoginRequestImpl;
 
   factory _LoginRequest.fromJson(Map<String, dynamic> json) =
       _$LoginRequestImpl.fromJson;
 
   @override
-  String get code;
+  String get siteCode;
   @override
-  String get email;
+  String get username;
   @override
   String get password;
 

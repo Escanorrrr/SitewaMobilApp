@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../domain/entities/login_request.dart';
+import '../providers/auth_notifier.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -10,101 +13,113 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _codeController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _siteCodeController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _codeController.dispose();
-    _emailController.dispose();
+    _siteCodeController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      final request = LoginRequest(
+        siteCode: _siteCodeController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+      );
+
+      ref.read(authNotifierProvider.notifier).login(request);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen(authNotifierProvider, (previous, next) {
+      next.maybeWhen(
+        error: (message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        },
+        orElse: () {},
+      );
+    });
+
+    final state = ref.watch(authNotifierProvider);
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(24.w),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(
-                  Icons.apartment,
-                  size: 80,
-                  color: Colors.blue,
+                Text(
+                  'Hoş Geldiniz',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'SiteWA',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 48),
+                SizedBox(height: 32.h),
                 TextFormField(
-                  controller: _codeController,
+                  controller: _siteCodeController,
                   decoration: const InputDecoration(
-                    labelText: 'Kod',
-                    prefixIcon: Icon(Icons.code),
+                    labelText: 'Site Kodu',
+                    hintText: 'Örn: BLOK2',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Lütfen kod giriniz';
+                      return 'Site kodu boş olamaz';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 TextFormField(
-                  controller: _emailController,
+                  controller: _usernameController,
                   decoration: const InputDecoration(
-                    labelText: 'E-posta',
-                    prefixIcon: Icon(Icons.email),
+                    labelText: 'Kullanıcı Adı',
+                    hintText: 'Kullanıcı adınızı girin',
                   ),
-                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Lütfen e-posta giriniz';
+                      return 'Kullanıcı adı boş olamaz';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
                     labelText: 'Şifre',
-                    prefixIcon: Icon(Icons.lock),
+                    hintText: 'Şifrenizi girin',
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Lütfen şifre giriniz';
+                      return 'Şifre boş olamaz';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 32.h),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // TODO: Login işlemi
-                    }
-                  },
-                  child: const Text('Giriş Yap'),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    // TODO: Şifremi unuttum
-                  },
-                  child: const Text('Şifremi Unuttum'),
+                  onPressed: state.maybeWhen(
+                    loading: () => null,
+                    orElse: () => _handleLogin,
+                  ),
+                  child: state.maybeWhen(
+                    loading: () => const CircularProgressIndicator(),
+                    orElse: () => const Text('Giriş Yap'),
+                  ),
                 ),
               ],
             ),
